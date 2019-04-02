@@ -128,6 +128,7 @@ CSRC = $(ALLCSRC) \
 CPPSRC = $(ALLCPPSRC) \
          src/hal/Gpio.cpp \
 		 src/Alive.cpp \
+		 src/DataSensors.cpp \
 		 src/System.cpp \
 		 src/main.cpp
 

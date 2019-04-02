@@ -22,6 +22,7 @@ WestBot::System::System( Hal::I2c& i2c2 )
     : _i2c2( i2c2 )
 {
     _alive = new WestBot::Alive( 125 );
+    _sensors = new WestBot::DataSensors();
 }
 
 void WestBot::System::init()
@@ -41,6 +42,9 @@ void WestBot::System::init()
 
     // On start ensuite les threads
     _alive->start( NORMALPRIO + 20 );
+
+    _sensors->addVL6180X(); // TODO: XXX
+    _sensors->start( NORMALPRIO + 10 );
 
     _alive->setDelayMs( 50 );
 }
@@ -73,6 +77,11 @@ void WestBot::System::printCliMsg()
 
     // Set color cursor to normal
     CLI_PRINT( 1, KNRM "" );
+}
+
+WestBot::DataSensors::Data_t WestBot::System::sensorsData()
+{
+    return _sensors->getDataStructure();
 }
 
 //

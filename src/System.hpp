@@ -13,6 +13,7 @@
 #include "modules/comm/Utils.hpp"
 
 #include "Alive.hpp"
+#include "DataSensors.hpp"
 
 namespace WestBot {
 
@@ -25,6 +26,8 @@ public:
 
     void printCliMsg();
 
+    DataSensors::Data_t sensorsData();
+
 private:
     void printBootMsg();
 
@@ -32,6 +35,7 @@ private:
     Hal::I2c& _i2c2;
 
     WestBot::Alive* _alive;
+    WestBot::DataSensors* _sensors;
 };
 
 }
