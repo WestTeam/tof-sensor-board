@@ -1,5 +1,7 @@
 // Copyright (c) 2019 All Rights Reserved WestBot
 
+#include "hal/Gpio.hpp"
+
 #include "System.hpp"
 
 namespace
@@ -37,11 +39,17 @@ void WestBot::System::init()
     // Welcome the user
     printBootMsg();
 
+    // Configure VL6180X before starting pullind data from it
+    if( ! _vl6180x.init() )
+    {
+        DEBUG_PRINT( 1, KRED "Failed to init VL6180X sensors\r\n" );
+        // DO NO START THREADS and GO TO TRAP MODE
+        trap();
+        return;
+    }
+
     // On start ensuite les threads
     _alive->start( NORMALPRIO + 20 );
-
-    // Configure VL6180X before starting pullind data from it
-    _vl6180x.init();
 
     // TODO: XXX DO NOT FORGET TO HOLD PIN TO HIGH BEFORE CHANGING I2C ADDR
     // IF NEEDED !!!
@@ -49,8 +57,6 @@ void WestBot::System::init()
     _sensors->addVL6180X(
         std::make_shared< WestBot::Modules::Sensors::VL6180X >( _vl6180x ) );
     _sensors->start( NORMALPRIO + 10 );
-
-    _alive->setDelayMs( 50 );
 }
 
 void WestBot::System::printCliMsg()
@@ -60,7 +66,7 @@ void WestBot::System::printCliMsg()
     #ifdef CH_COMPILER_NAME
         CLI_PRINT( 1, KGRN "Compiler:     %s\r\n", CH_COMPILER_NAME );
     #endif
-     CLI_PRINT( 1, KGRN "Architecture: %s\r\n", PORT_ARCHITECTURE_NAME );
+    CLI_PRINT( 1, KGRN "Architecture: %s\r\n", PORT_ARCHITECTURE_NAME );
     #ifdef CH_CORE_VARIANT_NAME
         CLI_PRINT( 1, KGRN "Core Variant: %s\r\n", CH_CORE_VARIANT_NAME );
     #endif
@@ -98,7 +104,7 @@ void WestBot::System::printBootMsg()
     #ifdef CH_COMPILER_NAME
         DEBUG_PRINT( 1, KGRN "Compiler:     %s\r\n", CH_COMPILER_NAME );
     #endif
-     DEBUG_PRINT( 1, KGRN "Architecture: %s\r\n", PORT_ARCHITECTURE_NAME );
+    DEBUG_PRINT( 1, KGRN "Architecture: %s\r\n", PORT_ARCHITECTURE_NAME );
     #ifdef CH_CORE_VARIANT_NAME
         DEBUG_PRINT( 1, KGRN "Core Variant: %s\r\n", CH_CORE_VARIANT_NAME );
     #endif
@@ -119,4 +125,15 @@ void WestBot::System::printBootMsg()
 
     // Set color cursor to normal
     DEBUG_PRINT( 1, KNRM "" );
+}
+
+void WestBot::System::trap()
+{
+    WestBot::Hal::Gpio ledGreen( { GPIOA, GPIOA_LED_GREEN } );
+
+    while( 1 )
+    {
+        ledGreen.toggle();
+        chThdSleepMilliseconds( 50 );
+    }
 }

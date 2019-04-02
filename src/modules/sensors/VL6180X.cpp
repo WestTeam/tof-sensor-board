@@ -17,20 +17,22 @@ VL6180X::VL6180X( I2CDriver* i2c )
 VL6180X::VL6180X( I2CDriver* i2c, uint8_t addr )
     : _i2c( i2c )
     , _deviceAddr( addr )
+    , _timeout( TIME_MS2I( 100 ) )
 {
 }
 
-void VL6180X::init()
+bool VL6180X::init()
 {
     if( ! ping() )
     {
         DEBUG_PRINT( 1, KNRM "[VL6180X] Chip not detected\r\n" );
-        return;
+        return false;
     }
 
     DEBUG_PRINT( 1, KNRM "[VL6180X] Chip detected\r\n" );
 
     configure();
+    return true;
 }
 
 uint8_t VL6180X::measureDistance( uint8_t* out_mm )
@@ -168,13 +170,13 @@ void VL6180X::configure()
 void VL6180X::writeRegister( uint16_t reg, uint8_t val )
 {
     uint8_t buf[] = { ( reg >> 8 ), reg & 0xff, val };
-    i2cMasterTransmit( _i2c, _deviceAddr, buf, 3, NULL, 0 );
+    i2cMasterTransmitTimeout( _i2c, _deviceAddr, buf, 3, NULL, 0, _timeout );
 }
 
 uint8_t VL6180X::readRegister( uint16_t reg )
 {
     uint8_t ret;
     uint8_t buf[] = { ( reg >> 8 ), reg & 0xff };
-    i2cMasterTransmit( _i2c, _deviceAddr, buf, 2, & ret, 1 );
+    i2cMasterTransmitTimeout( _i2c, _deviceAddr, buf, 2, & ret, 1, _timeout );
     return ret;
 }

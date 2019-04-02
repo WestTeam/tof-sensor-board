@@ -33,6 +33,8 @@ public:
 private:
     void printBootMsg();
 
+    void trap();
+
 private:
     WestBot::Modules::Sensors::VL6180X _vl6180x;
 

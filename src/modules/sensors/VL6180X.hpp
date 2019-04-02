@@ -25,7 +25,7 @@ public:
     VL6180X( I2CDriver* i2c );
     VL6180X( I2CDriver* i2c, uint8_t addr );
 
-    void init();
+    bool init();
 
     // Returns 0 if the distance was measured correctly,
     // the error code otherwise.
@@ -47,6 +47,7 @@ private:
 private:
     I2CDriver* _i2c;
     uint8_t _deviceAddr;
+    systime_t _timeout;
 };
 
 }
