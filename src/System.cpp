@@ -1,10 +1,8 @@
 // Copyright (c) 2019 All Rights Reserved WestBot
 
-#include "hal/Gpio.hpp"
-
 #include "System.hpp"
 
-#define NO_VL6180X 1
+//#define NO_VL6180X
 
 namespace
 {
@@ -133,11 +131,9 @@ void WestBot::System::printBootMsg()
 
 void WestBot::System::trap()
 {
-    WestBot::Hal::Gpio ledGreen( { GPIOA, GPIOA_LED_GREEN } );
-
     while( 1 )
     {
-        ledGreen.toggle();
+        palTogglePad( GPIOA, 5 );
         chThdSleepMilliseconds( 50 );
     }
 }

@@ -126,7 +126,6 @@ CSRC = $(ALLCSRC) \
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CPPSRC = $(ALLCPPSRC) \
-         src/hal/Gpio.cpp \
 		 src/Alive.cpp \
 		 src/DataSensors.cpp \
 		 src/modules/sensors/VL6180X.cpp \
