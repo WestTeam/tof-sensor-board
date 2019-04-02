@@ -127,6 +127,8 @@ CSRC = $(ALLCSRC) \
 # setting.
 CPPSRC = $(ALLCPPSRC) \
          src/hal/Gpio.cpp \
+		 src/Alive.cpp \
+		 src/System.cpp \
 		 src/main.cpp
 
 ifneq ($(findstring HAL_USE_I2C TRUE,$(HALCONF)),)

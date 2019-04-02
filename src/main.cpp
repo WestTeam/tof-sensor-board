@@ -9,6 +9,8 @@
 
 #include "modules/comm/Utils.hpp"
 
+#include "System.hpp"
+
 using namespace chibios_rt;
 
 namespace
@@ -70,6 +72,10 @@ int main( void )
         14,
         PAL_MODE_ALTERNATE( 4 ) | PAL_STM32_OTYPE_OPENDRAIN );
 
+    // Init the system after...
+    WestBot::System sys;
+    sys.init();
+
     // Shell manager initialization.
     shellInit();
 
@@ -78,6 +84,9 @@ int main( void )
     {
         if( ! shelltp )
         {
+            // Welcome shell user first...
+            sys.printCliMsg();
+
             shelltp = chThdCreateFromHeap(
                 NULL,
                 SHELL_WA_SIZE,
