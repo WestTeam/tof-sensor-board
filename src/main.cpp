@@ -7,6 +7,7 @@
 #include "chprintf.h"
 #include "shell.h"
 
+#include "modules/comm/Commands.hpp"
 #include "modules/comm/Utils.hpp"
 #include "System.hpp"
 
@@ -31,7 +32,7 @@ namespace
     const ShellConfig shellCfg =
     {
         ( BaseSequentialStream* ) & SD2,
-        NULL
+        user_commands
     };
 }
 
@@ -95,7 +96,7 @@ int main( void )
     shellInit();
 
     // Data structures
-    WestBot::DataSensors::Data_t tmpData = sys.sensorsData();
+    WestBot::DataSensors::Data_t tmpData;
 
     chEvtRegister( & shell_terminated, & el0, 0 );
     while( 1 )
@@ -114,7 +115,7 @@ int main( void )
                 ( void * ) & shellCfg );
         }
 
-        tmpData = sys.sensorsData();
+        tmpData = WestBot::DataSensors::getDataStructure();
 
         DEBUG_PRINT( 1, KNRM "========================\r\n" );
         DEBUG_PRINT( 1, KNRM "[ VL6180X ] Status: %d\r\n", tmpData.status );

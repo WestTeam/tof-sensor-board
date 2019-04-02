@@ -7,6 +7,8 @@
 using namespace WestBot;
 using namespace chibios_rt;
 
+static DataSensors::Data_t _data;
+
 DataSensors::DataSensors()
     : BaseStaticThread< 512 >()
     , _vl6180x( nullptr )

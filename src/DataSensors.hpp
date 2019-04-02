@@ -33,15 +33,13 @@ public:
 
     void setPollingDelayMs( int delayMs );
 
-    Data_t getDataStructure();
+    static Data_t getDataStructure();
 
 protected:
     void main() override;
 
 private:
     Modules::Sensors::VL6180X::Ptr _vl6180x;
-
-    Data_t _data;
     int _delayMs;
 };
 

@@ -48,10 +48,6 @@ void WestBot::System::init()
         trap();
         return;
     }
-#endif
-
-    // On start ensuite les threads
-    _alive->start( NORMALPRIO + 20 );
 
     // TODO: XXX DO NOT FORGET TO HOLD PIN TO HIGH BEFORE CHANGING I2C ADDR
     // IF NEEDED !!!
@@ -59,6 +55,10 @@ void WestBot::System::init()
     _sensors->addVL6180X(
         std::make_shared< WestBot::Modules::Sensors::VL6180X >( _vl6180x ) );
     _sensors->start( NORMALPRIO + 10 );
+#endif
+
+    // On start ensuite les threads
+    _alive->start( NORMALPRIO + 20 );
 }
 
 void WestBot::System::printCliMsg()
@@ -89,11 +89,6 @@ void WestBot::System::printCliMsg()
 
     // Set color cursor to normal
     CLI_PRINT( 1, KNRM "" );
-}
-
-WestBot::DataSensors::Data_t WestBot::System::sensorsData()
-{
-    return _sensors->getDataStructure();
 }
 
 //

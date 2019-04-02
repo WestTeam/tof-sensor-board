@@ -28,8 +28,6 @@ public:
 
     void printCliMsg();
 
-    DataSensors::Data_t sensorsData();
-
 private:
     void printBootMsg();
 
