@@ -129,6 +129,7 @@ CPPSRC = $(ALLCPPSRC) \
          src/hal/Gpio.cpp \
 		 src/Alive.cpp \
 		 src/DataSensors.cpp \
+		 src/modules/sensors/VL6180X.cpp \
 		 src/System.cpp \
 		 src/main.cpp
 

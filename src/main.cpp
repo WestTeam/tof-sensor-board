@@ -13,6 +13,8 @@
 #include "modules/comm/Utils.hpp"
 #include "System.hpp"
 
+#include "modules/sensors/VL6180X.hpp"
+
 using namespace chibios_rt;
 
 namespace
@@ -97,6 +99,10 @@ int main( void )
     // Init the system after...
     WestBot::System sys( i2c2 );
     sys.init();
+
+    // Test VL6180X
+    WestBot::Modules::Sensors::VL6180X vl6180x( & I2CD2 );
+    vl6180x.init();
 
     // Shell manager initialization.
     shellInit();
