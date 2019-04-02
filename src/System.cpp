@@ -4,6 +4,8 @@
 
 #include "System.hpp"
 
+#define NO_VL6180X 1
+
 namespace
 {
     // UART configuration
@@ -39,6 +41,7 @@ void WestBot::System::init()
     // Welcome the user
     printBootMsg();
 
+#ifndef NO_VL6180X
     // Configure VL6180X before starting pullind data from it
     if( ! _vl6180x.init() )
     {
@@ -47,6 +50,7 @@ void WestBot::System::init()
         trap();
         return;
     }
+#endif
 
     // On start ensuite les threads
     _alive->start( NORMALPRIO + 20 );
