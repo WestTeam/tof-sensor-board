@@ -18,7 +18,8 @@ namespace
 }
 
 // Init the system and all peripherals
-WestBot::System::System()
+WestBot::System::System( Hal::I2c& i2c2 )
+    : _i2c2( i2c2 )
 {
     _alive = new WestBot::Alive( 125 );
 }

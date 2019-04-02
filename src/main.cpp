@@ -7,14 +7,33 @@
 #include "chprintf.h"
 #include "shell.h"
 
-#include "modules/comm/Utils.hpp"
+// Hal includes for communication init
+#include "hal/I2c.hpp"
 
+#include "modules/comm/Utils.hpp"
 #include "System.hpp"
 
 using namespace chibios_rt;
 
 namespace
 {
+    // CONFIGURATION FOR I2C
+    // STM32L4 series use I2Cv2 so configuration is a little bit different than
+    // STM32F107
+    // Configure clock to 100kHz
+    const WestBot::Hal::I2c::conf_t i2c2Conf
+    {
+        & I2CD2,
+        {
+            STM32_TIMINGR_PRESC( 8U ) | STM32_TIMINGR_SCLDEL( 4U ) |
+            STM32_TIMINGR_SDADEL( 2U ) | STM32_TIMINGR_SCLH( 15U ) |
+            STM32_TIMINGR_SCLL( 19U ),
+            0,
+            0,
+        },
+        TIME_MS2I( 100 )
+    };
+
     // Configuration for Shell
     const ShellConfig shellCfg =
     {
@@ -72,8 +91,11 @@ int main( void )
         14,
         PAL_MODE_ALTERNATE( 4 ) | PAL_STM32_OTYPE_OPENDRAIN );
 
+    // Init I2C2 driver
+    WestBot::Hal::I2c i2c2( i2c2Conf );
+
     // Init the system after...
-    WestBot::System sys;
+    WestBot::System sys( i2c2 );
     sys.init();
 
     // Shell manager initialization.
