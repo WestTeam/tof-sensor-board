@@ -1,0 +1,3 @@
+[submodule "3rdparty/ChibiOS"]
+	path = 3rdparty/ChibiOS
+	url = git@github.com:ChibiOS/ChibiOS.git
