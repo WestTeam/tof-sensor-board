@@ -120,7 +120,8 @@ LDSCRIPT= $(STARTUPLD)/STM32L476xG.ld
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC = $(ALLCSRC) \
-       $(TESTSRC)
+       $(TESTSRC) \
+	   3rdparty/chibios-syscalls/newlib_syscalls.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
