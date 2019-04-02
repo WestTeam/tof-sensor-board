@@ -11,7 +11,7 @@
 #include "ch.hpp"
 #include "hal.h"
 
-// TODO: XXX Add include for sensors drivers
+#include "modules/sensors/VL6180X.hpp"
 
 namespace WestBot {
 
@@ -23,12 +23,13 @@ class DataSensors : public chibios_rt::BaseStaticThread< 512 >
 public:
     struct Data_t
     {
-        double dist_mm;
+        uint8_t dist_mm;
+        uint8_t status;
     };
 
     DataSensors();
 
-    void addVL6180X();
+    void addVL6180X( const Modules::Sensors::VL6180X::Ptr& vl6180x );
 
     void setPollingDelayMs( int delayMs );
 
@@ -38,6 +39,8 @@ protected:
     void main() override;
 
 private:
+    Modules::Sensors::VL6180X::Ptr _vl6180x;
+
     Data_t _data;
     int _delayMs;
 };

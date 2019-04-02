@@ -1,8 +1,5 @@
 // Copyright (c) 2019 All Rights Reserved WestBot
 
-#include "ch.hpp"
-#include "hal.h"
-
 #include "System.hpp"
 
 namespace
@@ -18,8 +15,8 @@ namespace
 }
 
 // Init the system and all peripherals
-WestBot::System::System( Hal::I2c& i2c2 )
-    : _i2c2( i2c2 )
+WestBot::System::System( I2CDriver* i2c2 )
+    : _vl6180x( i2c2 )
 {
     _alive = new WestBot::Alive( 125 );
     _sensors = new WestBot::DataSensors();
@@ -43,7 +40,14 @@ void WestBot::System::init()
     // On start ensuite les threads
     _alive->start( NORMALPRIO + 20 );
 
-    _sensors->addVL6180X(); // TODO: XXX
+    // Configure VL6180X before starting pullind data from it
+    _vl6180x.init();
+
+    // TODO: XXX DO NOT FORGET TO HOLD PIN TO HIGH BEFORE CHANGING I2C ADDR
+    // IF NEEDED !!!
+
+    _sensors->addVL6180X(
+        std::make_shared< WestBot::Modules::Sensors::VL6180X >( _vl6180x ) );
     _sensors->start( NORMALPRIO + 10 );
 
     _alive->setDelayMs( 50 );

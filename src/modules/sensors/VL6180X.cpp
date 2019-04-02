@@ -76,6 +76,9 @@ void VL6180X::changeI2cAddress( uint8_t address )
     _deviceAddr = address;
 }
 
+//
+// Private methods
+//
 bool VL6180X::ping()
 {
     uint8_t id = readRegister( IDENTIFICATION__MODEL_ID );
@@ -89,9 +92,6 @@ bool VL6180X::ping()
     }
 }
 
-//
-// Private methods
-//
 void VL6180X::configure()
 {
     while( readRegister( 0x16 ) != 0x01 )

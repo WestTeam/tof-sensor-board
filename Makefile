@@ -133,10 +133,6 @@ CPPSRC = $(ALLCPPSRC) \
 		 src/System.cpp \
 		 src/main.cpp
 
-ifneq ($(findstring HAL_USE_I2C TRUE,$(HALCONF)),)
-CPPSRC += hal/I2c.cpp
-endif
-
 # C sources to be compiled in ARM mode regardless of the global setting.
 # NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
 #       option that results in lower performance and larger code size.

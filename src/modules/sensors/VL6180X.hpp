@@ -34,10 +34,10 @@ public:
     // Change default I2C address
     void changeI2cAddress( uint8_t address );
 
+private:
     // Check if sensor is present on I2C
     bool ping();
 
-private:
     // Sends initial configuration to device.
     void configure();
 

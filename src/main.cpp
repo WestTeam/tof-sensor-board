@@ -7,13 +7,8 @@
 #include "chprintf.h"
 #include "shell.h"
 
-// Hal includes for communication init
-#include "hal/I2c.hpp"
-
 #include "modules/comm/Utils.hpp"
 #include "System.hpp"
-
-#include "modules/sensors/VL6180X.hpp"
 
 using namespace chibios_rt;
 
@@ -23,17 +18,13 @@ namespace
     // STM32L4 series use I2Cv2 so configuration is a little bit different than
     // STM32F107
     // Configure clock to 100kHz
-    const WestBot::Hal::I2c::conf_t i2c2Conf
+    const I2CConfig i2c2Conf
     {
-        & I2CD2,
-        {
-            STM32_TIMINGR_PRESC( 8U ) | STM32_TIMINGR_SCLDEL( 4U ) |
-            STM32_TIMINGR_SDADEL( 2U ) | STM32_TIMINGR_SCLH( 15U ) |
-            STM32_TIMINGR_SCLL( 19U ),
-            0,
-            0,
-        },
-        TIME_MS2I( 100 )
+        STM32_TIMINGR_PRESC( 8U ) | STM32_TIMINGR_SCLDEL( 4U ) |
+        STM32_TIMINGR_SDADEL( 2U ) | STM32_TIMINGR_SCLH( 15U ) |
+        STM32_TIMINGR_SCLL( 19U ),
+        0,
+        0,
     };
 
     // Configuration for Shell
@@ -94,18 +85,17 @@ int main( void )
         PAL_MODE_ALTERNATE( 4 ) | PAL_STM32_OTYPE_OPENDRAIN );
 
     // Init I2C2 driver
-    WestBot::Hal::I2c i2c2( i2c2Conf );
+    i2cStart( & I2CD2, & i2c2Conf );
 
     // Init the system after...
-    WestBot::System sys( i2c2 );
+    WestBot::System sys( & I2CD2 );
     sys.init();
-
-    // Test VL6180X
-    WestBot::Modules::Sensors::VL6180X vl6180x( & I2CD2 );
-    vl6180x.init();
 
     // Shell manager initialization.
     shellInit();
+
+    // Data structures
+    WestBot::DataSensors::Data_t tmpData = sys.sensorsData();
 
     chEvtRegister( & shell_terminated, & el0, 0 );
     while( 1 )
@@ -124,7 +114,11 @@ int main( void )
                 ( void * ) & shellCfg );
         }
 
+        tmpData = sys.sensorsData();
+
         DEBUG_PRINT( 1, KNRM "========================\r\n" );
+        DEBUG_PRINT( 1, KNRM "[ VL6180X ] Status: %d\r\n", tmpData.status );
+        DEBUG_PRINT( 1, KNRM "[ VL6180X ] Distance [mm]: %d\r\n", tmpData.dist_mm );
         DEBUG_PRINT( 1, KNRM "========================\r\n" );
 
         chEvtDispatch(

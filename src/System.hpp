@@ -8,9 +8,11 @@
 #ifndef WESTBOT_SYSTEM_HPP_
 #define WESTBOT_SYSTEM_HPP_
 
-#include "hal/I2c.hpp"
+#include "ch.hpp"
+#include "hal.h"
 
 #include "modules/comm/Utils.hpp"
+#include "modules/sensors/VL6180X.hpp"
 
 #include "Alive.hpp"
 #include "DataSensors.hpp"
@@ -20,7 +22,7 @@ namespace WestBot {
 class System
 {
 public:
-    System( Hal::I2c& i2c2 );
+    System( I2CDriver* i2c2 );
 
     void init();
 
@@ -32,7 +34,7 @@ private:
     void printBootMsg();
 
 private:
-    Hal::I2c& _i2c2;
+    WestBot::Modules::Sensors::VL6180X _vl6180x;
 
     WestBot::Alive* _alive;
     WestBot::DataSensors* _sensors;

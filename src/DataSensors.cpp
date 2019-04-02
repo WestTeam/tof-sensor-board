@@ -9,13 +9,14 @@ using namespace chibios_rt;
 
 DataSensors::DataSensors()
     : BaseStaticThread< 512 >()
+    , _vl6180x( nullptr )
     , _delayMs( 10 )
 {
 }
 
-void DataSensors::addVL6180X()
+void DataSensors::addVL6180X( const Modules::Sensors::VL6180X::Ptr& vl6180x )
 {
-    // TODO: XXX
+    _vl6180x = vl6180x;
 }
 
 void DataSensors::setPollingDelayMs( int delayMs )
@@ -32,9 +33,16 @@ void DataSensors::main()
 {
     setName( "sensors_data_polling" );
 
+    uint8_t distance_mm;
+    uint8_t status;
+
     while( 1 )
     {
-        _data.dist_mm = 0; // TODO: XXX
+        status = _vl6180x->measureDistance( & distance_mm );
+
+        _data.dist_mm = distance_mm;
+        _data.status = status;
+
         sleep( TIME_MS2I( _delayMs ) );
     }
 }
