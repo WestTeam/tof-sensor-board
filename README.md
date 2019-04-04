@@ -1,8 +1,10 @@
 # tof-sensor-board
 A project around ST VL6180X tof sensor
 
-This project use ChibiOS on stable branch 18.2.x and runs on the Nucleo
-STM32L476RG board.
+This project use ChibiOS on stable branch 18.2.x and runs on board from CVRA:
+https://github.com/cvra/sensor-board
+
+The branch STM32L4 has a working sample project running on the Nucleo STM32L476RG board and below is the wiring on the demo board.
 
 HW wiring:
 ==
@@ -11,12 +13,18 @@ HW wiring:
   * Use USART2 (PA2/PA3) for CLI
   * Use USART3 (PB10/PB11) for data logging
 
+For both project, the build/flash process is really simple and easy:
+
 Build:
 ==
 
-To build the project, you just need to type make at root dir.
+```
+make -j7
+```
 
 Flash:
 ==
 
-To flash the board, you just need to type make flash at root dir.
+```
+make -j7 flash
+```
