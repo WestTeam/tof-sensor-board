@@ -9,6 +9,7 @@
 #define WESTBOT_SYSTEM_HPP_
 
 #include "modules/comm/Utils.hpp"
+#include "modules/sensors/VL6180X.hpp"
 
 namespace WestBot {
 
@@ -23,6 +24,9 @@ public:
 
 private:
     void printBootMsg();
+
+private:
+    Modules::Sensors::VL6180X _vl6180x;
 };
 
 }

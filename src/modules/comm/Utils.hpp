@@ -26,13 +26,14 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
+// TODO: Use SD2 with CVRA BOARD
 #define DEBUG
 #define DLEVEL 3
 #ifdef DEBUG
 #define DEBUG_PRINT( level, ... ) \
     do { \
         if( DLEVEL >= (level) ) \
-            chprintf( (BaseSequentialStream * )&SD2, __VA_ARGS__); \
+            chprintf( (BaseSequentialStream * )&SD3, __VA_ARGS__); \
    } while (0)
 #else
 #define DEBUG_PRINT( level, ... )

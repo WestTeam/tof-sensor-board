@@ -51,7 +51,7 @@ protected:
         setName( "alive" );
 
         // Enter PWM mode
-        palSetPadMode( GPIOA, 0, PAL_MODE_ALTERNATE( 1 ) );
+        palSetPadMode( GPIOA, 5, PAL_MODE_ALTERNATE( 1 ) );
         pwmStart( & PWMD2, & ledConf );
         pwmEnableChannel( & PWMD2, 0, 0 );
 
@@ -81,10 +81,10 @@ public:
 };
 
 static Alive alive;
-static WestBot::DataSensors sensors;
 
 // Init the system and all peripherals
 WestBot::System::System()
+    : _vl6180x( & I2CD2 )
 {
 }
 
@@ -97,16 +97,36 @@ void WestBot::System::init()
     // Activates the serial driver 2 for debug
     sdStart( & SD2, & uartCfg );
 
+    // Activates the serial driver 3 for debug
+    sdStart( & SD3, & uartCfg );
+
     // Welcome the user
     printBootMsg();
 
+#ifndef NO_VL6180X
+    // Configure VL6180X before starting pullind data from it
+    if( ! _vl6180x.init() )
+    {
+        DEBUG_PRINT( 1, KRED "Failed to init VL6180X sensors\r\n" );
+        trap();
+    }
+
+    // TODO: XXX DO NOT FORGET TO HOLD PIN TO HIGH BEFORE CHANGING I2C ADDR
+    // IF NEEDED !!!
+
+    static WestBot::DataSensors sensors( &_vl6180x );
+    sensors.start( NORMALPRIO + 10 );
+
+#endif
+
     // On start ensuite les threads
     alive.start( NORMALPRIO + 20 );
-    sensors.start( NORMALPRIO + 10 );
 }
 
 void WestBot::System::trap()
 {
+    palSetPadMode( GPIOA, 5, PAL_MODE_OUTPUT_PUSHPULL );
+
     while( 1 )
     {
         palTogglePad( GPIOA, 5 );

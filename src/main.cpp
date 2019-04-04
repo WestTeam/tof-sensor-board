@@ -40,12 +40,12 @@ int main( void )
     // Init communication peripherals(I2c, Spi, Uart, Can...)
     // Set pad mode for I2C2
     palSetPadMode(
-        GPIOB,
-        13,
+        GPIOA,
+        9,
         PAL_MODE_ALTERNATE( 4 ) | PAL_STM32_OTYPE_OPENDRAIN );
     palSetPadMode(
-        GPIOB,
-        14,
+        GPIOA,
+        10,
         PAL_MODE_ALTERNATE( 4 ) | PAL_STM32_OTYPE_OPENDRAIN );
 
     // Init I2C2 driver

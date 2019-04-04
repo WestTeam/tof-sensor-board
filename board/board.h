@@ -26,9 +26,27 @@
 /*
  * Board oscillators-related settings.
  */
+//#define STM32_LSECLK                0U
+//#define STM32_LSEDRV                (3U << 3U)
+//#define STM32_HSECLK                16000000U
+
+// TODO: CHANGE THIS WHEN USING THE REAL BOARD WITH DIFFERENT QUARTZ
+/*
+ * Board oscillators-related settings.
+ * NOTE: LSE not fitted.
+ */
+#if !defined(STM32_LSECLK)
 #define STM32_LSECLK                0U
+#endif
+
 #define STM32_LSEDRV                (3U << 3U)
-#define STM32_HSECLK                16000000U
+
+#if !defined(STM32_HSECLK)
+#define STM32_HSECLK                8000000U
+#endif
+
+#define STM32_HSE_BYPASS
+
 
 /*
  * MCU type as defined in the ST header.

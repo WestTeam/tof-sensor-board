@@ -27,7 +27,7 @@ public:
         uint8_t status;
     };
 
-    DataSensors();
+    DataSensors( Modules::Sensors::VL6180X* vl6180x );
 
     void setPollingDelayMs( int delayMs );
 
@@ -37,7 +37,7 @@ protected:
     void main() override;
 
 private:
-    Modules::Sensors::VL6180X _vl6180x;
+    Modules::Sensors::VL6180X* _vl6180x;
     int _delayMs;
 };
 
