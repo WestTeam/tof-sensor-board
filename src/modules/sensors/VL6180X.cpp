@@ -96,10 +96,10 @@ bool VL6180X::ping()
 
 void VL6180X::configure()
 {
-    while( readRegister( 0x16 ) != 0x01 )
-    {
-        // WAIT
-    }
+    //while( readRegister( 0x16 ) != 0x01 )
+    //{
+    //    // WAIT
+    //}
 
     // clear SYSTEM__FRESH_OUT_OF_RESET
     writeRegister( 0x016, 0x00 );
