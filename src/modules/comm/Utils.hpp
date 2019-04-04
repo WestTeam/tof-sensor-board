@@ -32,22 +32,10 @@
 #define DEBUG_PRINT( level, ... ) \
     do { \
         if( DLEVEL >= (level) ) \
-            chprintf( (BaseSequentialStream * )&SD3, __VA_ARGS__); \
-   } while (0)
-#else
-#define DEBUG_PRINT( level, ... )
-#endif
-
-#define DEBUG
-#define DLEVEL 3
-#ifdef DEBUG
-#define CLI_PRINT( level, ... ) \
-    do { \
-        if( DLEVEL >= (level) ) \
             chprintf( (BaseSequentialStream * )&SD2, __VA_ARGS__); \
    } while (0)
 #else
-#define CLI_PRINT( level, ... )
+#define DEBUG_PRINT( level, ... )
 #endif
 
 #endif // WESTBOT_COMM_UTILS_HPP_

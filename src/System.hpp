@@ -8,36 +8,21 @@
 #ifndef WESTBOT_SYSTEM_HPP_
 #define WESTBOT_SYSTEM_HPP_
 
-#include "ch.hpp"
-#include "hal.h"
-
 #include "modules/comm/Utils.hpp"
-#include "modules/sensors/VL6180X.hpp"
-
-#include "Alive.hpp"
-#include "DataSensors.hpp"
 
 namespace WestBot {
 
 class System
 {
 public:
-    System( I2CDriver* i2c2 );
+    System();
 
     void init();
 
-    void printCliMsg();
+    static void trap();
 
 private:
     void printBootMsg();
-
-    void trap();
-
-private:
-    WestBot::Modules::Sensors::VL6180X _vl6180x;
-
-    WestBot::Alive* _alive;
-    WestBot::DataSensors* _sensors;
 };
 
 }

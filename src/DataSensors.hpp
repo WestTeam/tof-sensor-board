@@ -18,7 +18,7 @@ namespace WestBot {
 // ========================================================================== //
 // Data Acquisition thread class. It starts a thread that polls sensors data.
 // ========================================================================== //
-class DataSensors : public chibios_rt::BaseStaticThread< 512 >
+class DataSensors : public chibios_rt::BaseStaticThread< 128 >
 {
 public:
     struct Data_t
@@ -29,8 +29,6 @@ public:
 
     DataSensors();
 
-    void addVL6180X( const Modules::Sensors::VL6180X::Ptr& vl6180x );
-
     void setPollingDelayMs( int delayMs );
 
     static Data_t getDataStructure();
@@ -39,7 +37,7 @@ protected:
     void main() override;
 
 private:
-    Modules::Sensors::VL6180X::Ptr _vl6180x;
+    Modules::Sensors::VL6180X _vl6180x;
     int _delayMs;
 };
 

@@ -8,8 +8,6 @@
 #ifndef WESTBOT_MODULES_SENSORS_VL6180X_HPP_
 #define WESTBOT_MODULES_SENSORS_VL6180X_HPP_
 
-#include <memory>
-
 #include "ch.hpp"
 #include "hal.h"
 
@@ -20,8 +18,6 @@ namespace Sensors {
 class VL6180X
 {
 public:
-    using Ptr = std::shared_ptr< VL6180X >;
-
     VL6180X( I2CDriver* i2c );
     VL6180X( I2CDriver* i2c, uint8_t addr );
 

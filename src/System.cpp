@@ -1,8 +1,16 @@
 // Copyright (c) 2019 All Rights Reserved WestBot
 
+#include "ch.hpp"
+#include "hal.h"
+
+#include <math.h>
+
 #include "System.hpp"
 
-//#define NO_VL6180X
+#include "DataSensors.hpp"
+
+
+using namespace chibios_rt;
 
 namespace
 {
@@ -14,14 +22,70 @@ namespace
         0,
         0
     };
+
+    const PWMConfig ledConf
+    {
+        1000000, // 1MHz PWM clock frequency
+        2500,    // Initial PWM period 20ms ( 50hz (20ms) for standard servo/ESC, 400hz for fast servo/ESC (2.5ms = 2500) )
+        NULL,  // No callback
+        {
+            { PWM_OUTPUT_ACTIVE_HIGH, NULL },
+            { PWM_OUTPUT_DISABLED, NULL },
+            { PWM_OUTPUT_DISABLED, NULL },
+            { PWM_OUTPUT_DISABLED, NULL }
+        },
+        0,
+        0,
+    #if STM32_PWM_USE_ADVANCED
+        0,
+    #endif
+    };
 }
 
-// Init the system and all peripherals
-WestBot::System::System( I2CDriver* i2c2 )
-    : _vl6180x( i2c2 )
+// DONT KNOW WHY but it saves a lot of space to declare the thread like this...
+class Alive : public BaseStaticThread< 32 >
 {
-    _alive = new WestBot::Alive( 125 );
-    _sensors = new WestBot::DataSensors();
+protected:
+    void main() override
+    {
+        setName( "alive" );
+
+        // Enter PWM mode
+        palSetPadMode( GPIOA, 0, PAL_MODE_ALTERNATE( 1 ) );
+        pwmStart( & PWMD2, & ledConf );
+        pwmEnableChannel( & PWMD2, 0, 0 );
+
+        while( 1 )
+        {
+            // Sin pulse to the LED
+            float in, out;
+            for( in = 0; in < 6.283; in = in + 0.00628 )
+            {
+                out = sin( in ) * 5000 + 5000;
+                int bright = floor( out );
+                pwmEnableChannel(
+                    & PWMD2,
+                    0,
+                    PWM_PERCENTAGE_TO_WIDTH( & PWMD2, bright ) );
+                in = in + .001 * out /255;
+                sleep( TIME_MS2I( 4 ) );
+            }
+        }
+  }
+
+public:
+    Alive()
+        : BaseStaticThread< 32 >()
+    {
+    }
+};
+
+static Alive alive;
+static WestBot::DataSensors sensors;
+
+// Init the system and all peripherals
+WestBot::System::System()
+{
 }
 
 void WestBot::System::init()
@@ -30,65 +94,24 @@ void WestBot::System::init()
     palSetPadMode( GPIOB, 10, PAL_MODE_ALTERNATE( 7 ) );
     palSetPadMode( GPIOB, 11, PAL_MODE_ALTERNATE( 7 ) );
 
-    // Activates the serial driver 3 for debug
-    sdStart( & SD3, & uartCfg );
-
-    // Activates the serial driver 2 for shell
+    // Activates the serial driver 2 for debug
     sdStart( & SD2, & uartCfg );
 
     // Welcome the user
     printBootMsg();
 
-#ifndef NO_VL6180X
-    // Configure VL6180X before starting pullind data from it
-    if( ! _vl6180x.init() )
-    {
-        DEBUG_PRINT( 1, KRED "Failed to init VL6180X sensors\r\n" );
-        // DO NO START THREADS and GO TO TRAP MODE
-        trap();
-        return;
-    }
-
-    // TODO: XXX DO NOT FORGET TO HOLD PIN TO HIGH BEFORE CHANGING I2C ADDR
-    // IF NEEDED !!!
-
-    _sensors->addVL6180X(
-        std::make_shared< WestBot::Modules::Sensors::VL6180X >( _vl6180x ) );
-    _sensors->start( NORMALPRIO + 10 );
-#endif
-
     // On start ensuite les threads
-    _alive->start( NORMALPRIO + 20 );
+    alive.start( NORMALPRIO + 20 );
+    sensors.start( NORMALPRIO + 10 );
 }
 
-void WestBot::System::printCliMsg()
+void WestBot::System::trap()
 {
-    //Display boot sys info:
-    CLI_PRINT( 1, KGRN "Kernel:       %s\r\n", CH_KERNEL_VERSION );
-    #ifdef CH_COMPILER_NAME
-        CLI_PRINT( 1, KGRN "Compiler:     %s\r\n", CH_COMPILER_NAME );
-    #endif
-    CLI_PRINT( 1, KGRN "Architecture: %s\r\n", PORT_ARCHITECTURE_NAME );
-    #ifdef CH_CORE_VARIANT_NAME
-        CLI_PRINT( 1, KGRN "Core Variant: %s\r\n", CH_CORE_VARIANT_NAME );
-    #endif
-    #ifdef CH_PORT_INFO
-        CLI_PRINT( 1, KGRN "Port Info:    %s\r\n", CH_PORT_INFO );
-    #endif
-    #ifdef PLATFORM_NAME
-        CLI_PRINT( 1, KGRN "Platform:     %s\r\n", PLATFORM_NAME );
-    #endif
-    #ifdef BOARD_NAME
-        CLI_PRINT( 1, KGRN "Board:        %s\r\n", BOARD_NAME );
-    #endif
-    #ifdef __DATE__
-    #ifdef __TIME__
-        CLI_PRINT( 1, KGRN "Build time:   %s%s%s\r\n", __DATE__, " - ", __TIME__ );
-    #endif
-    #endif
-
-    // Set color cursor to normal
-    CLI_PRINT( 1, KNRM "" );
+    while( 1 )
+    {
+        palTogglePad( GPIOA, 5 );
+        chThdSleepMilliseconds( 50 );
+    }
 }
 
 //
@@ -122,13 +145,4 @@ void WestBot::System::printBootMsg()
 
     // Set color cursor to normal
     DEBUG_PRINT( 1, KNRM "" );
-}
-
-void WestBot::System::trap()
-{
-    while( 1 )
-    {
-        palTogglePad( GPIOA, 5 );
-        chThdSleepMilliseconds( 50 );
-    }
 }
