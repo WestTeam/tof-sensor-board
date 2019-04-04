@@ -8,7 +8,6 @@
 #ifndef WESTBOT_SYSTEM_HPP_
 #define WESTBOT_SYSTEM_HPP_
 
-#include "modules/comm/Utils.hpp"
 #include "modules/sensors/VL6180X.hpp"
 
 namespace WestBot {

@@ -7,6 +7,7 @@
 
 #include "Alive.hpp"
 #include "DataSensors.hpp"
+#include "modules/comm/Utils.hpp"
 
 namespace
 {
@@ -54,7 +55,7 @@ void WestBot::System::init()
     // TODO: XXX DO NOT FORGET TO HOLD PIN TO HIGH BEFORE CHANGING I2C ADDR
     // IF NEEDED !!!
 
-    static WestBot::DataSensors sensors( &_vl6180x );
+    static WestBot::DataSensors sensors( & _vl6180x );
     sensors.start( NORMALPRIO + 10 );
 
 #endif
