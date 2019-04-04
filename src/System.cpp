@@ -3,14 +3,10 @@
 #include "ch.hpp"
 #include "hal.h"
 
-#include <math.h>
-
 #include "System.hpp"
 
+#include "Alive.hpp"
 #include "DataSensors.hpp"
-
-
-using namespace chibios_rt;
 
 namespace
 {
@@ -22,65 +18,9 @@ namespace
         0,
         0
     };
-
-    const PWMConfig ledConf
-    {
-        1000000, // 1MHz PWM clock frequency
-        2500,    // Initial PWM period 20ms ( 50hz (20ms) for standard servo/ESC, 400hz for fast servo/ESC (2.5ms = 2500) )
-        NULL,  // No callback
-        {
-            { PWM_OUTPUT_ACTIVE_HIGH, NULL },
-            { PWM_OUTPUT_DISABLED, NULL },
-            { PWM_OUTPUT_DISABLED, NULL },
-            { PWM_OUTPUT_DISABLED, NULL }
-        },
-        0,
-        0,
-    #if STM32_PWM_USE_ADVANCED
-        0,
-    #endif
-    };
 }
 
-// DONT KNOW WHY but it saves a lot of space to declare the thread like this...
-class Alive : public BaseStaticThread< 32 >
-{
-protected:
-    void main() override
-    {
-        setName( "alive" );
-
-        // Enter PWM mode
-        palSetPadMode( GPIOA, 5, PAL_MODE_ALTERNATE( 1 ) );
-        pwmStart( & PWMD2, & ledConf );
-        pwmEnableChannel( & PWMD2, 0, 0 );
-
-        while( 1 )
-        {
-            // Sin pulse to the LED
-            float in, out;
-            for( in = 0; in < 6.283; in = in + 0.00628 )
-            {
-                out = sin( in ) * 5000 + 5000;
-                int bright = floor( out );
-                pwmEnableChannel(
-                    & PWMD2,
-                    0,
-                    PWM_PERCENTAGE_TO_WIDTH( & PWMD2, bright ) );
-                in = in + .001 * out /255;
-                sleep( TIME_MS2I( 4 ) );
-            }
-        }
-  }
-
-public:
-    Alive()
-        : BaseStaticThread< 32 >()
-    {
-    }
-};
-
-static Alive alive;
+static WestBot::Alive alive;
 
 // Init the system and all peripherals
 WestBot::System::System()
@@ -123,17 +63,6 @@ void WestBot::System::init()
     alive.start( NORMALPRIO + 20 );
 }
 
-void WestBot::System::trap()
-{
-    palSetPadMode( GPIOA, 5, PAL_MODE_OUTPUT_PUSHPULL );
-
-    while( 1 )
-    {
-        palTogglePad( GPIOA, 5 );
-        chThdSleepMilliseconds( 50 );
-    }
-}
-
 //
 // Private methods
 //
@@ -165,4 +94,15 @@ void WestBot::System::printBootMsg()
 
     // Set color cursor to normal
     DEBUG_PRINT( 1, KNRM "" );
+}
+
+void WestBot::System::trap()
+{
+    palSetPadMode( GPIOA, 5, PAL_MODE_OUTPUT_PUSHPULL );
+
+    while( 1 )
+    {
+        palTogglePad( GPIOA, 5 );
+        chThdSleepMilliseconds( 50 );
+    }
 }

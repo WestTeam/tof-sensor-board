@@ -20,10 +20,10 @@ public:
 
     void init();
 
-    static void trap();
-
 private:
     void printBootMsg();
+
+    void trap();
 
 private:
     Modules::Sensors::VL6180X _vl6180x;
