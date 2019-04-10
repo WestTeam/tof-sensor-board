@@ -1,0 +1,17 @@
+# Copyright (c) 2019 All Rights Reserved WestBot
+
+sudo: false
+
+dist: trusty
+
+language: cpp
+
+before_install:
+    - sudo apt-get install gcc-arm-none-eabi
+    - git submodule update --init --recursive
+    #- if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
+
+# Build steps
+script:
+  - cd ${TRAVIS_BUILD_DIR}
+  - make -j7

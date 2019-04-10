@@ -1,4 +1,7 @@
 # tof-sensor-board
+
+[![Build Status](https://travis-ci.org/JeremySavonet/CppTestTravis.svg?branch=master)](https://travis-ci.org/JeremySavonet/CppTestTravis)
+
 A project around ST VL6180X tof sensor
 
 This project use ChibiOS on stable branch 18.2.x and runs on board from CVRA:
