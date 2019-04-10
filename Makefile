@@ -29,7 +29,7 @@ endif
 
 # Linker extra options here.
 ifeq ($(USE_LDOPT),)
-  USE_LDOPT = -lstdc++
+  USE_LDOPT =
 endif
 
 # Enable this if you want link time optimizations (LTO)
