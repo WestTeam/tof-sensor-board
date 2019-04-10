@@ -1,6 +1,6 @@
 # tof-sensor-board
 
-[![Build Status](https://travis-ci.org/JeremySavonet/CppTestTravis.svg?branch=master)](https://travis-ci.org/JeremySavonet/CppTestTravis)
+[![Build Status](https://travis-ci.com/WestTeam/tof-sensor-board.svg?branch=master)](https://travis-ci.com/WestTeam/tof-sensor-board)
 
 A project around ST VL6180X tof sensor
 
