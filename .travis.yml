@@ -1,13 +1,17 @@
-# Copyright (c) 2019 All Rights Reserved WestBot
-
 language: cpp
 compiler: gcc
-
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install gcc-arm-none-eabi
-
+- sudo apt-get update -qq
+- sudo apt-get install gcc-arm-none-eabi
 script:
-  - cd ${TRAVIS_BUILD_DIR}
-  - git submodule update --init --recursive
-  - make
+- cd ${TRAVIS_BUILD_DIR}
+- git submodule update --init --recursive
+- make
+deploy:
+  provider: releases
+  api_key:
+    secure: FYlVztjH/iYPh4eh5FlpoJcAOLJkK42Ei6zfRLdSXQImBkJj3vRO1NipOa8AeuXyXjGKeo3CAwRl/a3S0ER4eBYl1chP6iolJMygBrC4foGsQ60G7L+OztSEVoP9Nwx14t2dNnqgrzWJIfYDhX5aEjW82W/ULWKuUCnJOm3lfsKvXqDdynxzn95Vc6CwsNyOP6IJcTSI9W0zkFTVH15chVC4wq5ADrBC4/SJJy75+VE4ceAA1FgBXd1o/nLJgNfTWrwqA5HGUbO3d2EnszxmDPOlmlrxQGN4catD5TdctovtIMII2GfcfZWP1dfvIJnHvY5VdMeMh6GMAX4h12kLkUIsxCPmL0tjOoTSKXlJePsEDF35i+fib7OgDTA6ds97uKZjcDGEzmeGGtQSixWM94FvYD1lRvnBrkIYAG+1T51IR58Yu/8QIsKZzToQWkQh+6ijvIRnZrZ/VRvEnOoRHfx620IdozRwXEnOo4vCeAhSGiWN+aUbbc2hdVz05/KRMPuRDGuP2zP0kwIPcZA38HMDlvMV3gPKVkgtoC/yrTHyHZNPnkPg6XS2VT3tsUiFf1UK7IYT7O/ViyCHClvdyk11imXnVr9aDxS9WKEAz1ty8pvLhegBTJ8v48m/X1lj0VARmPiPZnWzubbfD1yLl3W/fMiVtNIvFJKEFLqSJkE=
+  file: build/tof-sensor-board.bin
+  skip_cleanup: true
+  on:
+    tags: true
