@@ -15,7 +15,7 @@ static DataSensors::Data_t _data;
 DataSensors::DataSensors( Modules::Sensors::VL6180X* vl6180x )
     : BaseStaticThread< 128 >()
     , _vl6180x( vl6180x )
-    , _delayMs( 10 )
+    , _delayMs( 1 )
 {
 }
 

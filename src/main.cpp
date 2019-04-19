@@ -7,8 +7,19 @@
 #include "DataSensors.hpp"
 #include "System.hpp"
 #include "modules/comm/Utils.hpp"
+#include "modules/crc/Crc.hpp"
 
 using namespace chibios_rt;
+
+// TODO: Move this...
+typedef struct
+{
+    uint8_t trameId = 0x01;
+    uint32_t data;
+    uint8_t magicNumber = 0xA5;
+} dataframe_t;
+
+dataframe_t distanceData;
 
 namespace
 {
@@ -24,6 +35,21 @@ namespace
         0,
         0,
     };
+
+    void sendTrame()
+    {
+        // Data structures
+        WestBot::DataSensors::Data_t tmpData;
+        tmpData = WestBot::DataSensors::getDataStructure();
+
+        distanceData.data = tmpData.dist_mm;
+        DEBUG_PRINT(
+            1,
+            KNRM "%d%d%d\r\n",
+            distanceData.trameId,
+            distanceData.data,
+            distanceData.magicNumber );
+    }
 }
 
 // Application entry point
@@ -37,7 +63,7 @@ int main( void )
     halInit();
     System::init();
 
-    // Init communication peripherals(I2c, Spi, Uart, Can...)
+    // Init communication peripherals
     // Set pad mode for I2C2
     palSetPadMode(
         GPIOA,
@@ -51,23 +77,14 @@ int main( void )
     // Init I2C2 driver
     i2cStart( & I2CD2, & i2c2Conf );
 
-    // Init the system after...
+    // Init the system
     WestBot::System sys;
     sys.init();
 
-    // Data structures
-    WestBot::DataSensors::Data_t tmpData;
-
     while( 1 )
     {
-        tmpData = WestBot::DataSensors::getDataStructure();
-
-        DEBUG_PRINT( 1, KNRM "========================\r\n" );
-        DEBUG_PRINT( 1, KNRM "[ VL6180X ] Status: %d\r\n", tmpData.status );
-        DEBUG_PRINT( 1, KNRM "[ VL6180X ] Distance [mm]: %d\r\n", tmpData.dist_mm );
-        DEBUG_PRINT( 1, KNRM "========================\r\n" );
-
-        chThdSleepMilliseconds( 250 );
+        sendTrame();
+        chThdSleepMilliseconds( 10 );
     }
 
     return 0;
