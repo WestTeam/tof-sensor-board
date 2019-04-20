@@ -4,20 +4,17 @@
 #include "ch.hpp"
 #include "hal.h"
 
-#include "DataSensors.hpp"
 #include "System.hpp"
 #include "modules/comm/Utils.hpp"
-#include "modules/crc/Crc.hpp"
+#include "modules/protocol/Protocol.hpp"
 
 using namespace chibios_rt;
 
-// TODO: Move this...
 typedef struct
 {
-    uint8_t trameId = 0x01;
-    uint32_t data;
-    uint8_t magicNumber = 0xA5;
-} dataframe_t;
+    WestBot::Modules::Protocol::ProtocolHeader header;
+    WestBot::System::Data_t data;
+} __attribute__( ( packed ) ) dataframe_t;
 
 dataframe_t distanceData;
 
@@ -35,21 +32,6 @@ namespace
         0,
         0,
     };
-
-    void sendTrame()
-    {
-        // Data structures
-        WestBot::DataSensors::Data_t tmpData;
-        tmpData = WestBot::DataSensors::getDataStructure();
-
-        distanceData.data = tmpData.dist_mm;
-        DEBUG_PRINT(
-            1,
-            KNRM "%d%d%d\r\n",
-            distanceData.trameId,
-            distanceData.data,
-            distanceData.magicNumber );
-    }
 }
 
 // Application entry point
@@ -81,10 +63,30 @@ int main( void )
     WestBot::System sys;
     sys.init();
 
+    // Init the data struct
+    distanceData.header.fanion = PROTOCOL_FANION;
+    distanceData.header.size = sizeof( dataframe_t );
+    distanceData.header.crc = 0;
+    distanceData.header.id = 1;
+
     while( 1 )
     {
-        sendTrame();
-        chThdSleepMilliseconds( 10 );
+        WestBot::System::Data_t data = sys.distance();
+        if( data.status == 0 )
+        {
+            distanceData.data = data;
+        }
+        else
+        {
+            distanceData.data = data;
+            distanceData.data.dist_mm = 255;
+        }
+
+        distanceData.header.crc = WestBot::Modules::Protocol::protocolCrc(
+            ( uint8_t* ) & distanceData,
+            sizeof( dataframe_t ) );
+
+        sdWrite( & SD3, ( uint8_t* ) & distanceData, sizeof( dataframe_t ) );
     }
 
     return 0;

@@ -15,13 +15,19 @@ namespace WestBot {
 class System
 {
 public:
+    struct Data_t
+    {
+        uint8_t dist_mm;
+        uint8_t status;
+    };
+
     System();
 
     void init();
 
-private:
-    void printBootMsg();
+    Data_t distance();
 
+private:
     void trap();
 
 private:

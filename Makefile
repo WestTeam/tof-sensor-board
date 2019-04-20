@@ -126,8 +126,8 @@ CSRC = $(ALLCSRC) \
 # setting.
 CPPSRC = $(ALLCPPSRC) \
 		 src/Alive.cpp \
-		 src/DataSensors.cpp \
 		 src/modules/crc/Crc.cpp \
+		 src/modules/protocol/Protocol.cpp \
 		 src/modules/sensors/VL6180X.cpp \
 		 src/System.cpp \
 		 src/main.cpp

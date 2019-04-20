@@ -6,15 +6,16 @@
 #include "System.hpp"
 
 #include "Alive.hpp"
-#include "DataSensors.hpp"
 #include "modules/comm/Utils.hpp"
+
+#define NO_VL6180X
 
 namespace
 {
     // UART configuration
     const SerialConfig uartCfg =
     {
-        115200, // bit rate
+        9600, // bit rate
         0,
         0,
         0
@@ -41,9 +42,6 @@ void WestBot::System::init()
     // Activates the serial driver 3 for debug
     sdStart( & SD3, & uartCfg );
 
-    // Welcome the user
-    printBootMsg();
-
 #ifndef NO_VL6180X
     // Configure VL6180X before starting pullind data from it
     if( ! _vl6180x.init() )
@@ -55,48 +53,22 @@ void WestBot::System::init()
     // TODO: XXX DO NOT FORGET TO HOLD PIN TO HIGH BEFORE CHANGING I2C ADDR
     // IF NEEDED !!!
 
-    static WestBot::DataSensors sensors( & _vl6180x );
-    sensors.start( NORMALPRIO + 10 );
-
 #endif
 
     // On start ensuite les threads
     alive.start( NORMALPRIO + 20 );
 }
 
+WestBot::System::Data_t WestBot::System::distance()
+{
+    WestBot::System::Data_t data;
+    data.status = _vl6180x.measureDistance( & data.dist_mm );
+    return data;
+}
+
 //
 // Private methods
 //
-void WestBot::System::printBootMsg()
-{
-    //Display boot sys info:
-    DEBUG_PRINT( 1, KGRN "Kernel:       %s\r\n", CH_KERNEL_VERSION );
-    #ifdef CH_COMPILER_NAME
-        DEBUG_PRINT( 1, KGRN "Compiler:     %s\r\n", CH_COMPILER_NAME );
-    #endif
-    DEBUG_PRINT( 1, KGRN "Architecture: %s\r\n", PORT_ARCHITECTURE_NAME );
-    #ifdef CH_CORE_VARIANT_NAME
-        DEBUG_PRINT( 1, KGRN "Core Variant: %s\r\n", CH_CORE_VARIANT_NAME );
-    #endif
-    #ifdef CH_PORT_INFO
-        DEBUG_PRINT( 1, KGRN "Port Info:    %s\r\n", CH_PORT_INFO );
-    #endif
-    #ifdef PLATFORM_NAME
-        DEBUG_PRINT( 1, KGRN "Platform:     %s\r\n", PLATFORM_NAME );
-    #endif
-    #ifdef BOARD_NAME
-        DEBUG_PRINT( 1, KGRN "Board:        %s\r\n", BOARD_NAME );
-    #endif
-    #ifdef __DATE__
-    #ifdef __TIME__
-        DEBUG_PRINT( 1, KGRN "Build time:   %s%s%s\r\n", __DATE__, " - ", __TIME__ );
-    #endif
-    #endif
-
-    // Set color cursor to normal
-    DEBUG_PRINT( 1, KNRM "" );
-}
-
 void WestBot::System::trap()
 {
     palSetPadMode( GPIOA, 5, PAL_MODE_OUTPUT_PUSHPULL );
