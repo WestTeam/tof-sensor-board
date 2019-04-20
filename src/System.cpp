@@ -62,7 +62,9 @@ void WestBot::System::init()
 WestBot::System::Data_t WestBot::System::distance()
 {
     WestBot::System::Data_t data;
+#ifndef NO_VL6180X
     data.status = _vl6180x.measureDistance( & data.dist_mm );
+#endif
     return data;
 }
 
