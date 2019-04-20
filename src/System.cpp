@@ -27,6 +27,7 @@ static WestBot::Alive alive;
 // Init the system and all peripherals
 WestBot::System::System()
     : _vl6180x( & I2CD2 )
+    , _state( WestBot::System::State::Unknown )
 {
 }
 
@@ -66,6 +67,76 @@ WestBot::System::Data_t WestBot::System::distance()
     data.status = _vl6180x.measureDistance( & data.dist_mm );
 #endif
     return data;
+}
+
+void WestBot::System::readIncomingData()
+{
+    WestBot::System::dataframe_t distanceData;
+
+    static uint8_t* ptr = ( uint8_t * ) & distanceData;
+    static int remaining = 0;
+    int nbBytesRead = 0;
+
+    switch( _state )
+    {
+    case WestBot::System::State::Unknown:
+    {
+        ptr = ( uint8_t * ) & distanceData;
+
+        nbBytesRead = sdAsynchronousRead( & SD3, ptr, 1 );
+
+        if( nbBytesRead != 1 )
+        {
+            return;
+        }
+        else
+        {
+            ptr++;
+            if( distanceData.header.fanion == 0xA5 )
+            {
+                _state = WestBot::System::State::MagicDetect;
+                remaining = 8;
+            }
+        }
+    }
+        break;
+
+    case WestBot::System::State::MagicDetect:
+    {
+        nbBytesRead = sdAsynchronousRead(
+            & SD3,
+            ptr,
+            remaining );
+
+        if( nbBytesRead != 0 )
+        {
+            ptr += nbBytesRead;
+            remaining = remaining - nbBytesRead;
+            if( remaining == 0 )
+            {
+                const uint16_t crc = WestBot::Modules::Protocol::protocolCrc(
+                        ( uint8_t* ) & distanceData,
+                        sizeof( WestBot::System::dataframe_t ) );
+
+                if( crc != distanceData.header.crc )
+                {
+                    return;
+                }
+
+                if( distanceData.data.status == 0 )
+                {
+                    // TODO: forward the trame
+                }
+                else
+                {
+                    // TODO: Log
+                    return;
+                }
+            }
+        }
+        break;
+    }
+    }
 }
 
 //

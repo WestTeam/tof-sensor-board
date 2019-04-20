@@ -10,13 +10,7 @@
 
 using namespace chibios_rt;
 
-typedef struct
-{
-    WestBot::Modules::Protocol::ProtocolHeader header;
-    WestBot::System::Data_t data;
-} __attribute__( ( packed ) ) dataframe_t;
-
-dataframe_t distanceData;
+WestBot::System::dataframe_t distanceData;
 
 namespace
 {
@@ -65,16 +59,19 @@ int main( void )
 
     // Init the data struct
     distanceData.header.fanion = PROTOCOL_FANION;
-    distanceData.header.size = sizeof( dataframe_t );
+    distanceData.header.size = sizeof( WestBot::System::dataframe_t );
     distanceData.header.crc = 0;
     distanceData.header.id = 1;
 
     while( 1 )
     {
+        sys.readIncomingData();
+
         WestBot::System::Data_t data = sys.distance();
         if( data.status == 0 )
         {
             distanceData.data = data;
+            distanceData.data.dist_mm = 23;
         }
         else
         {
@@ -84,9 +81,12 @@ int main( void )
 
         distanceData.header.crc = WestBot::Modules::Protocol::protocolCrc(
             ( uint8_t* ) & distanceData,
-            sizeof( dataframe_t ) );
+            sizeof( WestBot::System::dataframe_t ) );
 
-        sdWrite( & SD3, ( uint8_t* ) & distanceData, sizeof( dataframe_t ) );
+        sdWrite(
+            & SD3,
+            ( uint8_t* ) & distanceData,
+            sizeof( WestBot::System::dataframe_t ) );
     }
 
     return 0;

@@ -8,6 +8,7 @@
 #ifndef WESTBOT_SYSTEM_HPP_
 #define WESTBOT_SYSTEM_HPP_
 
+#include "modules/protocol/Protocol.hpp"
 #include "modules/sensors/VL6180X.hpp"
 
 namespace WestBot {
@@ -15,10 +16,22 @@ namespace WestBot {
 class System
 {
 public:
-    struct Data_t
+    typedef struct
     {
         uint8_t dist_mm;
         uint8_t status;
+    } __attribute__( ( packed ) ) Data_t;
+
+    typedef struct
+    {
+        WestBot::Modules::Protocol::ProtocolHeader header;
+        Data_t data;
+    } __attribute__( ( packed ) ) dataframe_t;
+
+    enum State
+    {
+        Unknown = 0,
+        MagicDetect
     };
 
     System();
@@ -27,11 +40,14 @@ public:
 
     Data_t distance();
 
+    void readIncomingData();
+
 private:
     void trap();
 
 private:
     Modules::Sensors::VL6180X _vl6180x;
+    State _state;
 };
 
 }
