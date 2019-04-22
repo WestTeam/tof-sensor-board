@@ -65,7 +65,10 @@ WestBot::System::Data_t WestBot::System::distance()
     WestBot::System::Data_t data;
 #ifndef NO_VL6180X
     data.status = _vl6180x.measureDistance( & data.dist_mm );
+#else
+    data.status = 0;
 #endif
+
     return data;
 }
 
@@ -120,18 +123,24 @@ void WestBot::System::readIncomingData()
 
                 if( crc != distanceData.header.crc )
                 {
-                    return;
+                    goto err;
                 }
 
                 if( distanceData.data.status == 0 )
                 {
-                    // TODO: forward the trame
+                    sdWrite(
+                        & SD3,
+                        ( uint8_t* ) & distanceData,
+                        sizeof( WestBot::System::dataframe_t ) );
                 }
                 else
                 {
                     // TODO: Log
-                    return;
+                    goto err;
                 }
+
+err:
+                _state = WestBot::System::State::Unknown;
             }
         }
         break;

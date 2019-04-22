@@ -1,5 +1,8 @@
 // Copyright (c) 2019 All Rights Reserved WestBot
 
+#include <cstdlib>
+#include <ctime>
+
 // System and ChibiOS related includes
 #include "ch.hpp"
 #include "hal.h"
@@ -71,7 +74,7 @@ int main( void )
         if( data.status == 0 )
         {
             distanceData.data = data;
-            distanceData.data.dist_mm = 23;
+            distanceData.data.dist_mm = rand() % 99 + 1;
         }
         else
         {
