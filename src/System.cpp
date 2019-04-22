@@ -3,6 +3,9 @@
 #include "ch.hpp"
 #include "hal.h"
 
+#include <cstdlib>
+#include <ctime>
+
 #include "System.hpp"
 
 #include "Alive.hpp"
@@ -21,6 +24,56 @@ namespace
         0
     };
 }
+
+volatile uint8_t dataId = 0;
+volatile uint8_t dataValue = 0;
+volatile uint8_t dataValid = 0;
+volatile uint8_t dataStatus = 0;
+
+class Vl6180Thread : public chibios_rt::BaseStaticThread< 256 >
+{
+public:
+    Vl6180Thread( const WestBot::Modules::Sensors::VL6180X& sensor )
+        : BaseStaticThread< 256 >()
+        , _sensor( sensor )
+    {
+    }
+
+protected:
+    void main() override
+    {
+        setName( "Vl6180x" );
+
+        while( 1 )
+        {
+            WestBot::System::Data_t data = distance();
+
+            dataValid = 0;
+            dataValue = rand() % 99 + 1;//data.dist_mm;
+            dataStatus = 0; data.status;
+            dataId++;
+            dataValid = 1;
+
+            sleep( TIME_MS2I( 100 ) );
+        }
+    }
+
+private:
+    WestBot::System::Data_t distance()
+    {
+        WestBot::System::Data_t data;
+    #ifndef NO_VL6180X
+        data.status = _sensor.measureDistance( & data.dist_mm );
+    #else
+      data.status = 0;
+    #endif
+
+        return data;
+    }
+
+private:
+    WestBot::Modules::Sensors::VL6180X _sensor;
+};
 
 static WestBot::Alive alive;
 
@@ -58,23 +111,68 @@ void WestBot::System::init()
 
     // On start ensuite les threads
     alive.start( NORMALPRIO + 20 );
+    static Vl6180Thread distanceSensor( _vl6180x );
+    distanceSensor.start( NORMALPRIO + 20 );
 }
 
-WestBot::System::Data_t WestBot::System::distance()
+void WestBot::System::process()
 {
-    WestBot::System::Data_t data;
-#ifndef NO_VL6180X
-    data.status = _vl6180x.measureDistance( & data.dist_mm );
-#else
-    data.status = 0;
-#endif
+    readIncomingData();
 
-    return data;
+    static uint8_t localDataId = 0;
+    static uint8_t localDataValid = 0;
+    if( dataValid == 1 )
+    {
+        uint8_t newDataId = dataId;
+        uint8_t newDataValue = dataValue;
+        uint8_t newDataStatus = dataStatus;
+        if( localDataValid == 0 || newDataId != localDataId )
+        {
+            if( dataValid == 1 && dataId == newDataId )
+            {
+                localDataId = newDataId;
+                localDataValid = 1;
+
+                WestBot::System::dataframe_t distanceData;
+
+                // Init the data struct
+                distanceData.header.fanion = PROTOCOL_FANION;
+                distanceData.header.size = sizeof( WestBot::System::dataframe_t );
+                distanceData.header.crc = 0;
+                distanceData.header.id = 0;
+
+                distanceData.data.dist_mm = newDataValue;
+                distanceData.data.status = newDataStatus;
+
+                distanceData.header.crc = WestBot::Modules::Protocol::protocolCrc(
+                    ( uint8_t* ) & distanceData,
+                    sizeof( WestBot::System::dataframe_t ) );
+                sdWrite(
+                    & SD3,
+                    ( uint8_t* ) & distanceData,
+                    sizeof( WestBot::System::dataframe_t ) );
+            }
+        }
+    }
+}
+
+//
+// Private methods
+//
+void WestBot::System::trap()
+{
+    palSetPadMode( GPIOA, 5, PAL_MODE_OUTPUT_PUSHPULL );
+
+    while( 1 )
+    {
+        palTogglePad( GPIOA, 5 );
+        chThdSleepMilliseconds( 50 );
+    }
 }
 
 void WestBot::System::readIncomingData()
 {
-    WestBot::System::dataframe_t distanceData;
+    static WestBot::System::dataframe_t distanceData;
 
     static uint8_t* ptr = ( uint8_t * ) & distanceData;
     static int remaining = 0;
@@ -128,6 +226,12 @@ void WestBot::System::readIncomingData()
 
                 if( distanceData.data.status == 0 )
                 {
+                    distanceData.header.id++;
+                    const uint16_t crc = WestBot::Modules::Protocol::protocolCrc(
+                            ( uint8_t* ) & distanceData,
+                            sizeof( WestBot::System::dataframe_t ) );
+                    distanceData.header.crc = crc;
+
                     sdWrite(
                         & SD3,
                         ( uint8_t* ) & distanceData,
@@ -145,19 +249,5 @@ err:
         }
         break;
     }
-    }
-}
-
-//
-// Private methods
-//
-void WestBot::System::trap()
-{
-    palSetPadMode( GPIOA, 5, PAL_MODE_OUTPUT_PUSHPULL );
-
-    while( 1 )
-    {
-        palTogglePad( GPIOA, 5 );
-        chThdSleepMilliseconds( 50 );
     }
 }

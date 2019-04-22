@@ -1,19 +1,12 @@
 // Copyright (c) 2019 All Rights Reserved WestBot
 
-#include <cstdlib>
-#include <ctime>
-
 // System and ChibiOS related includes
 #include "ch.hpp"
 #include "hal.h"
 
 #include "System.hpp"
-#include "modules/comm/Utils.hpp"
-#include "modules/protocol/Protocol.hpp"
 
 using namespace chibios_rt;
-
-WestBot::System::dataframe_t distanceData;
 
 namespace
 {
@@ -60,36 +53,9 @@ int main( void )
     WestBot::System sys;
     sys.init();
 
-    // Init the data struct
-    distanceData.header.fanion = PROTOCOL_FANION;
-    distanceData.header.size = sizeof( WestBot::System::dataframe_t );
-    distanceData.header.crc = 0;
-    distanceData.header.id = 1;
-
     while( 1 )
     {
-        sys.readIncomingData();
-
-        WestBot::System::Data_t data = sys.distance();
-        if( data.status == 0 )
-        {
-            distanceData.data = data;
-            distanceData.data.dist_mm = rand() % 99 + 1;
-        }
-        else
-        {
-            distanceData.data = data;
-            distanceData.data.dist_mm = 255;
-        }
-
-        distanceData.header.crc = WestBot::Modules::Protocol::protocolCrc(
-            ( uint8_t* ) & distanceData,
-            sizeof( WestBot::System::dataframe_t ) );
-
-        sdWrite(
-            & SD3,
-            ( uint8_t* ) & distanceData,
-            sizeof( WestBot::System::dataframe_t ) );
+        sys.process();
     }
 
     return 0;

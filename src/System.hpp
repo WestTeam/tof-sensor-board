@@ -38,12 +38,12 @@ public:
 
     void init();
 
-    Data_t distance();
-
-    void readIncomingData();
+    void process();
 
 private:
     void trap();
+
+    void readIncomingData();
 
 private:
     Modules::Sensors::VL6180X _vl6180x;
