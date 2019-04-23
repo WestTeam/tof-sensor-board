@@ -3,8 +3,7 @@
 #include "ch.hpp"
 #include "hal.h"
 
-#include <cstdlib>
-#include <ctime>
+#include "stdlib.h"
 
 #include "System.hpp"
 
