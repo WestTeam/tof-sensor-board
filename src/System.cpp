@@ -3,8 +3,6 @@
 #include "ch.hpp"
 #include "hal.h"
 
-#include "stdlib.h"
-
 #include "System.hpp"
 
 #include "Alive.hpp"
@@ -17,7 +15,7 @@ namespace
     // UART configuration
     const SerialConfig uartCfg =
     {
-        9600, // bit rate
+        115200, // bit rate
         0,
         0,
         0
@@ -58,11 +56,12 @@ protected:
             }
 
             dataValid = 0;
-            dataValue = rand() % 99 + 1;//data.dist_mm;
-            dataStatus = 0; data.status;
+            dataValue = data.dist_mm;
+            dataStatus = data.status;
             dataId++;
             dataValid = 1;
 
+            //DEBUG_PRINT( 1, KRED "Dist:%d\r\n", dataValue );
             sleep( TIME_MS2I( 100 ) );
         }
     }
