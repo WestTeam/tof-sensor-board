@@ -37,7 +37,7 @@ void Alive::main()
     setName( "alive" );
 
     // Enter PWM mode
-    palSetPadMode( GPIOA, 5, PAL_MODE_ALTERNATE( 1 ) );
+    palSetPadMode( GPIOA, 0, PAL_MODE_ALTERNATE( 1 ) );
     pwmStart( & PWMD2, & ledConf );
     pwmEnableChannel( & PWMD2, 0, 0 );
 

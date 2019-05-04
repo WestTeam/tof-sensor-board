@@ -33,7 +33,7 @@
 #define DEBUG_PRINT( level, ... ) \
     do { \
         if( DLEVEL >= (level) ) \
-            chprintf( (BaseSequentialStream * )&SD3, __VA_ARGS__); \
+            chprintf( (BaseSequentialStream * )&SD2, __VA_ARGS__); \
    } while (0)
 #else
 #define DEBUG_PRINT( level, ... )

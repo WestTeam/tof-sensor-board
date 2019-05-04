@@ -25,11 +25,11 @@ bool VL6180X::init()
 {
     if( ! ping() )
     {
-        DEBUG_PRINT( 1, KNRM "[VL6180X] Chip not detected\r\n" );
+        //DEBUG_PRINT( 1, KNRM "[VL6180X] Chip not detected\r\n" );
         return false;
     }
 
-    DEBUG_PRINT( 1, KNRM "[VL6180X] Chip detected\r\n" );
+    //DEBUG_PRINT( 1, KNRM "[VL6180X] Chip detected\r\n" );
 
     configure();
     return true;

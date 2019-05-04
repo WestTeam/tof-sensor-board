@@ -26,9 +26,9 @@
 /*
  * Board oscillators-related settings.
  */
-#define STM32_LSECLK                0U
-#define STM32_LSEDRV                (3U << 3U)
-#define STM32_HSECLK                16000000U
+//#define STM32_LSECLK                0U
+//#define STM32_LSEDRV                (3U << 3U)
+//#define STM32_HSECLK                16000000U
 
 /*
  * MCU type as defined in the ST header.

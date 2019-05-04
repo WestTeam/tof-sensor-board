@@ -41,8 +41,6 @@ public:
     void process();
 
 private:
-    void trap();
-
     void readIncomingData();
 
 private:

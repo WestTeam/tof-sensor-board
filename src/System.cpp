@@ -10,7 +10,7 @@
 #include "Alive.hpp"
 #include "modules/comm/Utils.hpp"
 
-#define NO_VL6180X
+//#define NO_VL6180X
 
 namespace
 {
@@ -46,6 +46,16 @@ protected:
         while( 1 )
         {
             WestBot::System::Data_t data = distance();
+
+            // Proximity detected
+            if( data.dist_mm < 20 )
+            {
+                palSetPad( GPIOA, 6 ); // Turn the red led ON
+            }
+            else
+            {
+                palClearPad( GPIOA, 6 ); // Turn the red led ON
+            }
 
             dataValid = 0;
             dataValue = rand() % 99 + 1;//data.dist_mm;
@@ -86,21 +96,18 @@ WestBot::System::System()
 void WestBot::System::init()
 {
     // Set pad mode for UART 3 (UART 2 is already set in board.h)
-    palSetPadMode( GPIOB, 10, PAL_MODE_ALTERNATE( 7 ) );
-    palSetPadMode( GPIOB, 11, PAL_MODE_ALTERNATE( 7 ) );
+    palSetPadMode( GPIOB, 3, PAL_MODE_ALTERNATE( 7 ) );
+    palSetPadMode( GPIOB, 4, PAL_MODE_ALTERNATE( 7 ) );
 
-    // Activates the serial driver 2 for debug
+    // Activates the serial driver 2
     sdStart( & SD2, & uartCfg );
-
-    // Activates the serial driver 3 for debug
-    sdStart( & SD3, & uartCfg );
 
 #ifndef NO_VL6180X
     // Configure VL6180X before starting pullind data from it
     if( ! _vl6180x.init() )
     {
-        DEBUG_PRINT( 1, KRED "Failed to init VL6180X sensors\r\n" );
-        trap();
+        //DEBUG_PRINT( 1, KRED "Failed to init VL6180X sensors\r\n" );
+        NVIC_SystemReset();
     }
 
     // TODO: XXX DO NOT FORGET TO HOLD PIN TO HIGH BEFORE CHANGING I2C ADDR
@@ -147,7 +154,7 @@ void WestBot::System::process()
                     ( uint8_t* ) & distanceData,
                     sizeof( WestBot::System::dataframe_t ) );
                 sdWrite(
-                    & SD3,
+                    & SD2,
                     ( uint8_t* ) & distanceData,
                     sizeof( WestBot::System::dataframe_t ) );
             }
@@ -158,17 +165,6 @@ void WestBot::System::process()
 //
 // Private methods
 //
-void WestBot::System::trap()
-{
-    palSetPadMode( GPIOA, 5, PAL_MODE_OUTPUT_PUSHPULL );
-
-    while( 1 )
-    {
-        palTogglePad( GPIOA, 5 );
-        chThdSleepMilliseconds( 50 );
-    }
-}
-
 void WestBot::System::readIncomingData()
 {
     static WestBot::System::dataframe_t distanceData;
@@ -183,7 +179,7 @@ void WestBot::System::readIncomingData()
     {
         ptr = ( uint8_t * ) & distanceData;
 
-        nbBytesRead = sdAsynchronousRead( & SD3, ptr, 1 );
+        nbBytesRead = sdAsynchronousRead( & SD2, ptr, 1 );
 
         if( nbBytesRead != 1 )
         {
@@ -204,7 +200,7 @@ void WestBot::System::readIncomingData()
     case WestBot::System::State::MagicDetect:
     {
         nbBytesRead = sdAsynchronousRead(
-            & SD3,
+            & SD2,
             ptr,
             remaining );
 
@@ -232,7 +228,7 @@ void WestBot::System::readIncomingData()
                     distanceData.header.crc = crc;
 
                     sdWrite(
-                        & SD3,
+                        & SD2,
                         ( uint8_t* ) & distanceData,
                         sizeof( WestBot::System::dataframe_t ) );
                 }
