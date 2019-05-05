@@ -62,7 +62,7 @@ protected:
             dataValid = 1;
 
             //DEBUG_PRINT( 1, KRED "Dist:%d\r\n", dataValue );
-            sleep( TIME_MS2I( 100 ) );
+            sleep( TIME_MS2I( 1 ) );
         }
     }
 
