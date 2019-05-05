@@ -218,7 +218,6 @@ void WestBot::System::readIncomingData()
                     goto err;
                 }
 
-                if( distanceData.data.status == 0 )
                 {
                     distanceData.header.id++;
                     const uint16_t crc = WestBot::Modules::Protocol::protocolCrc(
@@ -230,11 +229,6 @@ void WestBot::System::readIncomingData()
                         & SD2,
                         ( uint8_t* ) & distanceData,
                         sizeof( WestBot::System::dataframe_t ) );
-                }
-                else
-                {
-                    // TODO: Log
-                    goto err;
                 }
 
 err:
