@@ -19,6 +19,8 @@ class System
 public:
     typedef struct
     {
+        uint16_t color;
+        bool colorStatus;
         uint8_t dist_mm;
         uint8_t status;
     } __attribute__( ( packed ) ) Data_t;

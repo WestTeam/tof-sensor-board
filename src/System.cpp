@@ -30,8 +30,11 @@ volatile uint8_t dataStatus = 0;
 class Vl6180Thread : public chibios_rt::BaseStaticThread< 256 >
 {
 public:
-    Vl6180Thread( const WestBot::Modules::Sensors::VL6180X& sensor )
+    Vl6180Thread(
+        const WestBot::Modules::Sensors::TCS3472& color,
+        const WestBot::Modules::Sensors::VL6180X& sensor )
         : BaseStaticThread< 256 >()
+        , _colorSensor( color )
         , _sensor( sensor )
     {
     }
@@ -76,10 +79,17 @@ private:
       data.status = 0;
     #endif
 
+    #ifndef NO_TCS
+        data.colorStatus = _colorSensor.readColor( & data.color );
+    #else
+        data.colorStatus = 0;
+    #endif
+
         return data;
     }
 
 private:
+    WestBot::Modules::Sensors::TCS3472 _colorSensor;
     WestBot::Modules::Sensors::VL6180X _sensor;
 };
 
@@ -124,7 +134,7 @@ void WestBot::System::init()
 
     // On start ensuite les threads
     alive.start( NORMALPRIO + 20 );
-    static Vl6180Thread distanceSensor( _vl6180x );
+    static Vl6180Thread distanceSensor( _colorSensor, _vl6180x );
     distanceSensor.start( NORMALPRIO + 20 );
 }
 
