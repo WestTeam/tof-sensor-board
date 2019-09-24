@@ -87,7 +87,8 @@ static WestBot::Alive alive;
 
 // Init the system and all peripherals
 WestBot::System::System()
-    : _vl6180x( & I2CD2 )
+    : _colorSensor( & I2CD2 )
+    , _vl6180x( & I2CD2 )
     , _state( WestBot::System::State::Unknown )
 {
 }
@@ -112,6 +113,13 @@ void WestBot::System::init()
     // TODO: XXX DO NOT FORGET TO HOLD PIN TO HIGH BEFORE CHANGING I2C ADDR
     // IF NEEDED !!!
 
+#endif
+
+#ifndef NO_TCS
+    if( ! _colorSensor.init() )
+    {
+        NVIC_SystemReset();
+    }
 #endif
 
     // On start ensuite les threads

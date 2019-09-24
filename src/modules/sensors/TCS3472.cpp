@@ -51,6 +51,9 @@ TCS3472::TCS3472( I2CDriver* i2c, uint8_t addr )
 
 bool TCS3472::init()
 {
+    palSetPadMode( GPIOA, 4, PAL_STM32_MODE_OUTPUT );
+    palSetPad( GPIOA, 4 ); // enable light
+
     if( ! ping() )
     {
         //DEBUG_PRINT( 1, KNRM "[VL6180X] Chip not detected\r\n" );

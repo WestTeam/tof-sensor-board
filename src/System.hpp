@@ -9,6 +9,7 @@
 #define WESTBOT_SYSTEM_HPP_
 
 #include "modules/protocol/Protocol.hpp"
+#include "modules/sensors/TCS3472.hpp"
 #include "modules/sensors/VL6180X.hpp"
 
 namespace WestBot {
@@ -44,6 +45,7 @@ private:
     void readIncomingData();
 
 private:
+    Modules::Sensors::TCS3472 _colorSensor;
     Modules::Sensors::VL6180X _vl6180x;
     State _state;
 };
